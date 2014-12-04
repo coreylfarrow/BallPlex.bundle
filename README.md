@@ -2,7 +2,7 @@ BallPlex
 ========
 Plex plugin for [Ballstreams.com](http://www4.ballstreams.com/assist/categories/13/api+discussion/4232/APP+BallPlex)
 
-Original author:  FredenFromSweden / Mark Freden 
+Original author:  FredenFromSweden
 
 ## Installation
 You need to install Plex Media Server before you can use this plugin.
