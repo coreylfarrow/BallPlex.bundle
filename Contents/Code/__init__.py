@@ -1,12 +1,13 @@
 # BallPlex
 # BallStreams.com Plugin for Plex Media Center
-# by Mark Freden m@sitticus.com
-# Version .03
-# Nov 30, 2013
+# by Mark Freden m@sitticus.com 
+# updated by Kevin Centeno @devteno
+# Version .04
+# Dec 4, 2014
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .03'
+TITLE = 'BallPlex .04'
 PREFIX = '/video/ballplex'
 
 ART = 'art-default.jpg'
@@ -302,7 +303,7 @@ def GetOnDemandGames(url):
                 logo = awayTeam + homeTeam + ' Logo.png'
 
                 # Add the feedType with a dash
-                # if video['feedType']: feedType = ' - ' + video['feedType']
+                if video['feedType']: feedType = ' - ' + video['feedType']
 
                 # Built the title
                 title = awayTeam + homeTeam + feedType
@@ -315,6 +316,11 @@ def GetOnDemandGames(url):
 def StreamM3U8(game_id, title1, url, thumb, art, summary, include_container=False):
     Log("StreamM3U8 Game: " + str([game_id, title1, url, thumb, art, summary]))
 
+    container = Container.MP4
+    video_codec = VideoCodec.H264
+    audio_codec = AudioCodec.AAC
+    audio_channels = 2
+
     vco = VideoClipObject(
         key=Callback(StreamM3U8, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
                      include_container=True),
@@ -325,10 +331,14 @@ def StreamM3U8(game_id, title1, url, thumb, art, summary, include_container=Fals
         summary=summary,
         items=[
             MediaObject(
-                optimized_for_streaming=True,
                 parts=[
-                    PartObject(key=HTTPLiveStreamURL(url=url))
-                ]
+                    PartObject(key=Callback(PlayVideo, url=url))
+                ],
+                container = container,
+                video_codec = video_codec,
+                audio_codec = audio_codec,
+                audio_channels = audio_channels,
+                optimized_for_streaming=True
             )
         ]
     )
@@ -337,6 +347,10 @@ def StreamM3U8(game_id, title1, url, thumb, art, summary, include_container=Fals
         return ObjectContainer(objects=[vco])
     else:
         return vco
+
+@indirect
+def PlayVideo(url):
+    return IndirectResponse(VideoClipObject, key=url)
 
 ###################################################################################################
 def ValidatePrefs():
