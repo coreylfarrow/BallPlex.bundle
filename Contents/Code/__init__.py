@@ -85,7 +85,7 @@ def LiveGamesMenu():
         if game_id == 0:
             return (ObjectContainer(header="Error", message=title))
         else:
-            oc.add(StreamM3U8(game_id, title, srcUrl, logo, arena, summary))
+            oc.add(GetStream(game_id, title, srcUrl, logo, arena, summary))
 
     return oc
 
@@ -228,26 +228,26 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
 
     # Set vid quality chosen in prefs
     if HD and quality == 'High':
-        oc.add(StreamM3U8(game_id, gameName, HD, logo, arena, summary))
+        oc.add(GetStream(game_id, gameName, HD, logo, arena, summary, False, True))
     else:
-        oc.add(StreamM3U8(game_id, gameName, SD, logo, arena, summary))
+        oc.add(GetStream(game_id, gameName, SD, logo, arena, summary, False, True))
 
     # If the home and away feeds are the same, don't bother listing both
     if homeCondensed == awayCondensed and homeCondensed != "" and awayCondensed != "":
-        oc.add(StreamM3U8(game_id, "Condensed Game", homeCondensed, logo, arena, summary))
+        oc.add(GetStream(game_id, "Condensed Game", homeCondensed, logo, arena, summary, False, True))
     else:
         if homeCondensed:
-            oc.add(StreamM3U8(game_id, homeTeam + " Condensed Game", homeCondensed, logo, arena, summary))
+            oc.add(GetStream(game_id, homeTeam + " Condensed Game", homeCondensed, logo, arena, summary, False, True))
         if awayCondensed:
-            oc.add(StreamM3U8(game_id, awayTeam + " Condensed Game", awayCondensed, logo, arena, summary))
+            oc.add(GetStream(game_id, awayTeam + " Condensed Game", awayCondensed, logo, arena, summary, False, True))
 
     if homeHighlights == awayHighlights and homeHighlights != "" and awayHighlights != "":
-        oc.add(StreamM3U8(game_id, "Highlights", homeHighlights, logo, arena, summary))
+        oc.add(GetStream(game_id, "Highlights", homeHighlights, logo, arena, summary))
     else:
         if homeHighlights:
-            oc.add(StreamM3U8(game_id, homeTeam + " Highlights", homeHighlights, logo, arena, summary))
+            oc.add(GetStream(game_id, homeTeam + " Highlights", homeHighlights, logo, arena, summary, False, True))
         if awayHighlights:
-            oc.add(StreamM3U8(game_id, awayTeam + " Highlights", awayHighlights, logo, arena, summary))
+            oc.add(GetStream(game_id, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, True))
 
     return oc
 
@@ -313,35 +313,54 @@ def GetOnDemandGames(url):
     return videos
 
 ###################################################################################################
-def StreamM3U8(game_id, title1, url, thumb, art, summary, include_container=False):
-    Log("StreamM3U8 Game: " + str([game_id, title1, url, thumb, art, summary]))
+def GetStream(game_id, title1, url, thumb, art, summary, include_container=False, is_mp4=False):
+    Log("GetStream Game: " + str([game_id, title1, url, thumb, art, summary]))
 
     container = Container.MP4
     video_codec = VideoCodec.H264
     audio_codec = AudioCodec.AAC
     audio_channels = 2
 
-    vco = VideoClipObject(
-        key=Callback(StreamM3U8, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
-                     include_container=True),
-        rating_key=game_id,
-        title=title1,
-        art=URL_ARENAREPO + art,
-        thumb=URL_LOGOREPO + thumb,
-        summary=summary,
-        items=[
-            MediaObject(
-                parts=[
-                    PartObject(key=Callback(PlayVideo, url=url))
-                ],
-                container = container,
-                video_codec = video_codec,
-                audio_codec = audio_codec,
-                audio_channels = audio_channels,
-                optimized_for_streaming=True
-            )
-        ]
-    )
+    if is_mp4:
+        vco = VideoClipObject(
+            key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
+                         include_container=True, is_mp4=True),
+            rating_key=game_id,
+            title=title1,
+            art=URL_ARENAREPO + art,
+            thumb=URL_LOGOREPO + thumb,
+            summary=summary,
+            items=[
+                MediaObject(
+                    parts=[
+                        PartObject(key=Callback(PlayVideo, url=url))
+                    ],
+                    container = container,
+                    video_codec = video_codec,
+                    audio_codec = audio_codec,
+                    audio_channels = audio_channels,
+                    optimized_for_streaming=True
+                )
+            ]
+        )
+    else:
+        vco = VideoClipObject(
+            key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
+                         include_container=True, is_mp4=False),
+            rating_key=game_id,
+            title=title1,
+            art=URL_ARENAREPO + art,
+            thumb=URL_LOGOREPO + thumb,
+            summary=summary,
+            items=[
+                MediaObject(
+                    optimized_for_streaming=True,
+                    parts=[
+                        PartObject(key=HTTPLiveStreamURL(url=url))
+                    ]
+                )
+            ]
+        )
 
     if include_container:
         return ObjectContainer(objects=[vco])
