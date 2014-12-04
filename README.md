@@ -17,7 +17,7 @@ You need to install Plex Media Server before you can use this plugin.
   * Linux: `(Installation Directory)/Application Support/Plex Media Server/Plug-ins/`
   
 ## Known Issues
-* Live streams doesn't work on Plex Web Client, and possibly other devices.  This is due to the use of HLS streams.
+* Live streams don't work on Plex Web Client, and possibly other devices.  This is due to the use of HLS streams.
 
 ## Release Log
 #### Version .04 - Dec 4, 2014
