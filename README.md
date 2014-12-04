@@ -10,7 +10,7 @@ You need to install Plex Media Server before you can use this plugin.
 **If you have a previous version of BallPlex, please remove it before installing an updated version**
 
 1. Download the latest version of BallPlex [here](https://github.com/kevcenteno/BallPlex/archive/v0.4.zip)
-2. Unzip and rename the folder from `BallPlex-0.4` to `BallPlex.bundle`
+2. Extract the `BallPlex-0.4` folder from the zip file and rename this folder to `BallPlex.bundle`
 3. Move the `BallPlex.bundle` folder from step 3 into the Plex Media Server, Plug-ins folder:
   * Mac: `~/Library/Application Support/Plex Media Server/Plug-ins/`
   * Windows: `C:\Users\<your user>\AppData\Local\Plex Media Server\Plug-ins`
