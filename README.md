@@ -19,6 +19,7 @@ You need to install Plex Media Server before you can use this plugin.
 
 ### Configure
 Most devices will allow you to enter your BallStreams username and password from the Log In menu when you go to the BallPlex Channel. If your device does not, you can enter them using the Plex Media Manager. To do this:
+
 1. Choose Media Manager from the Plex menu in your menubar/taskbar or open the Plex Media Server app again.
 2. Under Channels, choose BallPlex.
 3. Click the "Settings" (gear) icon.
