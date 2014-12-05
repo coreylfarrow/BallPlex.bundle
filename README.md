@@ -29,7 +29,7 @@ Most devices will allow you to enter your BallStreams username and password from
 * Live streams don't work on Plex Web Client, and possibly other devices.  This is due to the use of HLS streams.
 
 ## Release Log
-#### Version .05 - Dec 4, 2014
+#### Version .05 - Dec 5, 2014
 * Added short team names functionality (Made default)
 * On Demand streams: add highlights.  Condensed games are ready, but Ballstreams doesn't provide these streams yet
 
