@@ -107,51 +107,8 @@ def GetLiveGames(url):
         # Loop thru each to build videos meta
         for video in json['schedule']:
 
-            game_id = video['id']
-            awayTeam = ''
-            homeTeam = ''
-            startTime = ''
-            feedType = ''
-            ligature = ''
-            isPlaying = ''
-
-            # If the game isn't on yet, set to gameoff vid
-            if video['isPlaying'] == 0:
-                srcUrl = URL_GAMEOFF
-
-            # Set vid quality chosen in prefs
-            elif video['isHd'] == '1' and quality == 'High':
-                srcUrl = video['hdUrl']
-            else:
-                srcUrl = video['sdUrl']
-
-            # Set up home and away teams
-            if video['awayTeam']: awayTeam = video['awayTeam']
-            if video['homeTeam']: homeTeam = video['homeTeam']
-
-            # Set up arena pic name (have to do it before 'vs' gets added)
-            arena = R(ICON)
-
-            # Add 'vs' if there is a home and away team
-            if homeTeam: ligature = ' @ '
-
-            # Set up logo pic name
-            logo = R(ICON)
-
-            # Add playing indicator if game-on (maybe take this out)
-            if video['isPlaying'] == 1: isPlaying = ">"
-
-            if video['startTime']: startTime = "Start Time: " + video['startTime']
-            if video['period']: startTime = video['period']
-            if video['feedType']: feedType = ' - ' + video['feedType']
-
-            # Put the start time in the summary area
-            summary = startTime
-
-            # Built the title
-            title = isPlaying + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
-
-            videos.append([game_id, title, srcUrl, logo, arena, summary])
+            populateVideoArray(videos, video, True)
+           
     else:
         if json["status"] == "Failed":
             videos.append([0, json["msg"], "", "", "", ""])
@@ -268,33 +225,7 @@ def GetOnDemandGames(url):
             # If there isn't an iStream, don't list it
             if video['isiStream'] == 1:
 
-                game_id = video['id']
-                awayTeam = ''
-                homeTeam = ''
-                summary = ''
-                feedType = ''
-                ligature = ''
-
-                # Set up home and away teams
-                if video['awayTeam']: awayTeam = video['awayTeam']
-                if video['homeTeam']: homeTeam = video['homeTeam']
-
-                # Set up arena pic name (have to do it before 'vs' gets added)
-                arena = R(ICON)
-
-                # Add 'vs' if there is a home and away team
-                if homeTeam: ligature = ' @ '
-
-                # Set up logo pic name
-                logo = R(ICON)
-
-                # Add the feedType with a dash
-                if video['feedType']: feedType = ' - ' + video['feedType']
-
-                # Built the title
-                title = getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
-
-                videos.append([game_id, title, logo, arena, summary])
+                populateVideoArray(videos, video)
 
     return videos
 
@@ -452,3 +383,61 @@ def getTeamName(teamName):
             return teamName # It doesn't return original
 
     return teamName
+
+###################################################################################################
+
+def populateVideoArray(videoArr, videoObj, is_live=False):
+    game_id = videoObj['id']
+    awayTeam = ''
+    homeTeam = ''
+    feedType = ''
+    ligature = ''
+    isPlaying = ''
+    summary = ''
+
+    # Live stream specific 
+
+    if is_live:
+        # If the game isn't on yet, set to gameoff vid
+        if videoObj['isPlaying'] == 0:
+            srcUrl = URL_GAMEOFF
+
+        # Set vid quality chosen in prefs
+        elif videoObj['isHd'] == '1' and quality == 'High':
+            srcUrl = videoObj['hdUrl']
+        else:
+            srcUrl = videoObj['sdUrl']
+
+        if videoObj['isPlaying'] == 1: isPlaying = ">"
+
+        # Populate summary with Start Time or current period (preferred)
+        if videoObj['startTime']: summary = "Start Time: " + videoObj['startTime']
+        if videoObj['period']: summary = videoObj['period']
+
+
+    # On demand and Live stream
+
+    # Set up home and away teams
+    if videoObj['awayTeam']: awayTeam = videoObj['awayTeam']
+    if videoObj['homeTeam']: homeTeam = videoObj['homeTeam']
+
+    # Set up arena pic name (have to do it before 'vs' gets added)
+    arena = R(ICON)
+
+    # Add 'vs' if there is a home and away team
+    if homeTeam: ligature = ' @ '
+
+    # Set up logo pic name
+    logo = R(ICON)
+
+    # Add playing indicator if game-on (maybe take this out)
+    
+    if videoObj['feedType']: feedType = ' - ' + videoObj['feedType']
+
+    # Built the title
+    title = isPlaying + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
+
+    if is_live:
+        videoArr.append([game_id, title, srcUrl, logo, arena, summary])
+    else:
+        videoArr.append([game_id, title, logo, arena, summary])
