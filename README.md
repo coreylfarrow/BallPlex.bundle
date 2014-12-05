@@ -15,6 +15,9 @@ Original author:  FredenFromSweden / Mark Freden
 * Live streams doesn't work on Plex Web Client, and possibly other devices.  This is due to the use of HLS streams.
 
 ## Release Log
+#### Version .05 - Dec 4, 2014
+* Added short team names functionality
+
 #### Version .04 - Dec 4, 2014
 * On Demand streams: Add "Home Feed" or "Away Feed" to game title as appropriate
 * On Demand streams: Use MP4 streams instead of HLS; should improve compatibility on devices (tested on Plex Web Client)
