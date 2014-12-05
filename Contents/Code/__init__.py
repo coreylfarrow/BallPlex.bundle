@@ -175,40 +175,43 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
     homeTeam = game_json['homeTeam']
     awayTeam = game_json['awayTeam']
 
-    homeHighlights = game_json['highlights'][0]['homeSrc']
-    awayHighlights = game_json['highlights'][0]['awaySrc']
-    homeCondensed = game_json['condensed'][0]['homeSrc']
-    awayCondensed = game_json['condensed'][0]['awaySrc']
-    if game_json['HDstreams'][0]['src']: HD = game_json['HDstreams'][0]['src']
-    if game_json['SDstreams'][0]['src']: SD = game_json['SDstreams'][0]['src']
-
     if homeTeam:
         gameName = "Full Game"
     else:
         gameName = "Watch " + awayTeam
 
-    # Set vid quality chosen in prefs
-    if HD and quality == 'High':
-        oc.add(GetStream(game_id, gameName, HD, logo, arena, summary, False, True))
-    else:
-        oc.add(GetStream(game_id, gameName, SD, logo, arena, summary, False, True))
+    ### Set vid quality chosen in prefs
+    if game_json['HDstreams'][0]['src']: HD = game_json['HDstreams'][0]['src']
+    if game_json['SDstreams'][0]['src']: SD = game_json['SDstreams'][0]['src']
 
-    # If the home and away feeds are the same, don't bother listing both
-    if homeCondensed == awayCondensed and homeCondensed != "" and awayCondensed != "":
-        oc.add(GetStream(game_id, "Condensed Game", homeCondensed, logo, arena, summary, False, True))
+    if HD and quality == 'High':
+        oc.add(GetStream(HD, gameName, HD, logo, arena, summary, False, True))
     else:
-        if homeCondensed:
-            oc.add(GetStream(game_id, homeTeam + " Condensed Game", homeCondensed, logo, arena, summary, False, True))
-        if awayCondensed:
-            oc.add(GetStream(game_id, awayTeam + " Condensed Game", awayCondensed, logo, arena, summary, False, True))
+        oc.add(GetStream(SD, gameName, SD, logo, arena, summary, False, True))
+
+    ### Condensed Games
+    # homeCondensed = game_json['condensed'][0]['homeSrc']
+    # awayCondensed = game_json['condensed'][0]['awaySrc']
+
+    # if homeCondensed == awayCondensed and homeCondensed != "" and awayCondensed != "":
+    #     oc.add(GetStream(homeCondensed, "Condensed Game", homeCondensed, logo, arena, summary, False, True))
+    # else:
+    #     if homeCondensed:
+    #         oc.add(GetStream(homeCondensed, homeTeam + " Condensed Game", homeCondensed, logo, arena, summary, False, True))
+    #     if awayCondensed:
+    #         oc.add(GetStream(awayCondensed, awayTeam + " Condensed Game", awayCondensed, logo, arena, summary, False, True))
+
+    ### Highlights
+    homeHighlights = game_json['highlights'][0]['homeSrc']
+    awayHighlights = game_json['highlights'][0]['awaySrc']
 
     if homeHighlights == awayHighlights and homeHighlights != "" and awayHighlights != "":
-        oc.add(GetStream(game_id, "Highlights", homeHighlights, logo, arena, summary))
+        oc.add(GetStream(homeHighlights, "Highlights", homeHighlights, logo, arena, summary, False, True))
     else:
         if homeHighlights:
-            oc.add(GetStream(game_id, homeTeam + " Highlights", homeHighlights, logo, arena, summary, False, True))
+            oc.add(GetStream(homeHighlights, homeTeam + " Highlights", homeHighlights, logo, arena, summary, False, True))
         if awayHighlights:
-            oc.add(GetStream(game_id, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, True))
+            oc.add(GetStream(awayHighlights, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, True))
 
     return oc
 

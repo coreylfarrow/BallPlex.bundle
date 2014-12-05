@@ -30,7 +30,8 @@ Most devices will allow you to enter your BallStreams username and password from
 
 ## Release Log
 #### Version .05 - Dec 4, 2014
-* Added short team names functionality
+* Added short team names functionality (Made default)
+* On Demand streams: add highlights.  Condensed games are ready, but Ballstreams doesn't provide these streams yet
 
 #### Version .04 - Dec 4, 2014
 * On Demand streams: Add "Home Feed" or "Away Feed" to game title as appropriate
