@@ -16,6 +16,8 @@ LIVE_ICON = ''
 ONDEMAND_ICON = ''
 TOKEN = ''
 
+TEAM_NAMES = 'teams.json'
+
 TITLE_LIVEGAMES = 'Live Games'
 TITLE_ONDEMANDGAMES = 'On Demand'
 TITLE_PREFERENCES = 'Preferences'
@@ -110,6 +112,8 @@ def GetLiveGames(url):
             homeTeam = ''
             startTime = ''
             feedType = ''
+            ligature = ''
+            isPlaying = ''
 
             # If the game isn't on yet, set to gameoff vid
             if video['isPlaying'] == 0:
@@ -126,16 +130,16 @@ def GetLiveGames(url):
             if video['homeTeam']: homeTeam = video['homeTeam']
 
             # Set up arena pic name (have to do it before 'vs' gets added)
-            arena = homeTeam + ' Arena.jpg'
+            arena = R(ICON)
 
             # Add 'vs' if there is a home and away team
-            if homeTeam: homeTeam = ' vs ' + homeTeam
+            if homeTeam: ligature = ' @ '
 
             # Set up logo pic name
-            logo = awayTeam + homeTeam + ' Logo.png'
+            logo = R(ICON)
 
             # Add playing indicator if game-on (maybe take this out)
-            if video['isPlaying'] == 1: awayTeam = ">" + awayTeam
+            if video['isPlaying'] == 1: isPlaying = ">"
 
             if video['startTime']: startTime = "Start Time: " + video['startTime']
             if video['period']: startTime = video['period']
@@ -145,7 +149,7 @@ def GetLiveGames(url):
             summary = startTime
 
             # Built the title
-            title = awayTeam + homeTeam + feedType
+            title = isPlaying + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
             videos.append([game_id, title, srcUrl, logo, arena, summary])
     else:
@@ -255,9 +259,6 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
 def GetOnDemandGames(url):
     videos = []
 
-    # Get Prefs
-    # leagueFilter = Prefs['leaguefilter']
-
     # Get data from server
     game_json = JSON.ObjectFromURL(url)
 
@@ -267,46 +268,31 @@ def GetOnDemandGames(url):
             # If there isn't an iStream, don't list it
             if video['isiStream'] == 1:
 
-                # addVid = False
-                #
-                # # Check if league filter is on and filter results
-                # if leagueFilter == 'All':
-                #     addVid = True
-                # else:
-                #     if video['event'] == leagueFilter:
-                #         addVid = True
-                #
-                # # If the video should be added, build meta and add to videos list
-                # if addVid:
-
                 game_id = video['id']
                 awayTeam = ''
                 homeTeam = ''
                 summary = ''
                 feedType = ''
+                ligature = ''
 
                 # Set up home and away teams
                 if video['awayTeam']: awayTeam = video['awayTeam']
                 if video['homeTeam']: homeTeam = video['homeTeam']
 
                 # Set up arena pic name (have to do it before 'vs' gets added)
-                if homeTeam:
-                    arena = homeTeam + ' Arena.jpg'
-                else:
-                    # If it's a single event
-                    arena = awayTeam + ' Arena.jpg'
+                arena = R(ICON)
 
                 # Add 'vs' if there is a home and away team
-                if homeTeam: homeTeam = ' vs ' + homeTeam
+                if homeTeam: ligature = ' @ '
 
                 # Set up logo pic name
-                logo = awayTeam + homeTeam + ' Logo.png'
+                logo = R(ICON)
 
                 # Add the feedType with a dash
                 if video['feedType']: feedType = ' - ' + video['feedType']
 
                 # Built the title
-                title = awayTeam + homeTeam + feedType
+                title = getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
                 videos.append([game_id, title, logo, arena, summary])
 
@@ -448,3 +434,21 @@ def FormatDate(theDate):
         formatedDate = formatedDate.replace(' 0', ' ')
 
         return formatedDate
+
+###################################################################################################
+def getTeamName(teamName):
+    # Display short or long team name
+
+    useShortNames = Prefs["shortnames"]
+
+    ShortTeams = Resource.Load(TEAM_NAMES, False)
+    ShortTeams = JSON.ObjectFromString(ShortTeams)
+
+    if useShortNames == "On":
+        teamNameLower = teamName.lower()
+        if teamNameLower in ShortTeams:
+            return ShortTeams[teamNameLower] # It does so get name
+        else:
+            return teamName # It doesn't return original
+
+    return teamName

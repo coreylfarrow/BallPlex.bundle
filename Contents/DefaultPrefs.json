@@ -10,7 +10,8 @@
         "type": "text",
         "label": "Password",
         "default": "",
-        "option": "hidden"
+        "option": "hidden",
+        "secure": "true"
     },
     {
         "id":"quality",
@@ -18,5 +19,12 @@
         "label": "Stream Quality",
         "values": ["High", "Low"],
         "default": "High"
-    }
+    },
+    {
+        "id": "shortnames",
+        "type": "enum",
+        "label": "Short Names",
+        "values": ["Off", "On"],
+        "default": "On"
+    },
 ]
