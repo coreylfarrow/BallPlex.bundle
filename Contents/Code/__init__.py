@@ -66,9 +66,7 @@ def MainMenu():
             title=TITLE_PREFERENCES)
         )
     else:
-        oc.add(PrefsObject(
-            title=TITLE_LOGIN)
-        )
+        return (ObjectContainer(header="Error", message="Invalid Ballstreams username and password."))
 
     return oc
 
