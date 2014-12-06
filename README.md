@@ -2,7 +2,7 @@ BallPlex
 ========
 Plex plugin for [Ballstreams.com](http://www4.ballstreams.com/assist/categories/13/api+discussion/4232/APP+BallPlex)
 
-Original author:  FredenFromSweden
+Original author @ version 0.3:  FredenFromSweden
 
 ## Installation
 You need to install Plex Media Server before you can use this plugin.
@@ -32,6 +32,7 @@ Most devices will allow you to enter your BallStreams username and password from
 #### Version .05 - Dec 5, 2014
 * Added short team names functionality (Made default)
 * On Demand streams: add highlights.  Condensed games are ready, but Ballstreams doesn't provide these streams yet
+* Refactoring
 
 #### Version .04 - Dec 4, 2014
 * On Demand streams: Add "Home Feed" or "Away Feed" to game title as appropriate
