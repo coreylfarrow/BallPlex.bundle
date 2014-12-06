@@ -27,4 +27,20 @@
         "values": ["Off", "On"],
         "default": "On"
     },
+    {
+        "id": "serverlocation",
+        "type": "enum",
+        "label": "Server Location",
+        "values": [
+            "Automatic",
+            "Asia",
+            "Australia",
+            "Europe",
+            "North America - East Canada",
+            "North America - Central",
+            "North America - East",
+            "North America - West"
+        ],
+        "default": "Automatic"
+    }
 ]
