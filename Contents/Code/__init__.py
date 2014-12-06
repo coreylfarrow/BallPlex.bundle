@@ -75,6 +75,7 @@ def MainMenu():
 def LiveGamesMenu():
     title = TITLE_LIVEGAMES
     url = URL_LIVEGAMES % TOKEN
+    url = url + getServerLocation()
 
     oc = ObjectContainer(title2=title, no_cache=True)
 
@@ -193,7 +194,8 @@ def OnDemandGamesMenu(gameDate):
 
 ###################################################################################################
 def OnDemandStreamMenu(game_id, title, logo, arena, summary):
-    url = URL_ONDEMANDSTREAM % (game_id, TOKEN)
+    serverLocation = getServerLocation()
+    url = URL_ONDEMANDSTREAM % (game_id, TOKEN + serverLocation)
     game_json = JSON.ObjectFromURL(url)
 
     # Get Prefs
@@ -476,6 +478,8 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
     # On demand and Live stream
 
+    summary = summary + " - Server: " + getServerLocation()
+
     # Set up home and away teams
     if videoObj['awayTeam']: awayTeam = videoObj['awayTeam']
     if videoObj['homeTeam']: homeTeam = videoObj['homeTeam']
@@ -497,3 +501,13 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
+
+###################################################################################################
+
+def getServerLocation():
+    serverLocation = Prefs["serverlocation"]
+
+    if (serverLocation == "Automatic"):
+        return ""
+    else:
+        return "&location=" + String.Quote(serverLocation, True)
