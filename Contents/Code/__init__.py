@@ -25,6 +25,7 @@ TITLE_LOGIN = 'Log In'
 
 URL_LOGIN = 'https://api.ballstreams.com/Login'
 URL_LIVEGAMES = 'https://api.ballstreams.com/GetLive?token=%s'
+URL_LIVESTREAMS = 'https://api.ballstreams.com/GetLiveStream?id=%s&token=%s'
 URL_ONDEMANDGAMES = 'https://api.ballstreams.com/GetOnDemand?date=%s&token=%s'
 URL_ONDEMANDDATES = 'https://api.ballstreams.com/GetOnDemandDates?token=%s'
 URL_ONDEMANDSTREAM = 'https://api.ballstreams.com/GetOnDemandStream?id=%s&token=%s'
@@ -79,13 +80,17 @@ def LiveGamesMenu():
 
     # Loop thru videos array returned from GetLiveGames
     for video in GetLiveGames(url):
-        (game_id, title, srcUrl, logo, arena, summary) = video
+        (game_id, title, logo, arena, summary, isPlaying) = video
 
         # If there was an error, display it
         if game_id == 0:
             return (ObjectContainer(header="Error", message=title))
         else:
-            oc.add(GetStream(game_id, title, srcUrl, logo, arena, summary))
+            #oc.add(GetStream(game_id, title, srcUrl, logo, arena, summary))
+            oc.add(DirectoryObject(
+                    key=Callback(GetLiveGameStreams, game_id=game_id, title=title, isPlaying=isPlaying, summary=summary),
+                    title=title
+                ))
 
     return oc
 
@@ -114,28 +119,30 @@ def GetLiveGames(url):
     return videos
 
 ###################################################################################################
-def GetLiveGameStreams(url):
-    # Set up our array to return
-    videos = []
+def GetLiveGameStreams(game_id, title, isPlaying, summary):
+
+    oc = ObjectContainer(title2=title, no_cache=True)
 
     # Get data from server
+    url = URL_LIVESTREAMS % (game_id, TOKEN)
     json = JSON.ObjectFromURL(url)
 
-    if json["status"] == "Success":
+    quality = Prefs['quality']
 
-        # Get Prefs
-        quality = Prefs['quality']
+    if quality == 'High':
+        hlsUrl = json['nonDVRHD'][0]['src']
+        rtmpUrl = json['TrueLiveHD'][0]['src']
 
-        # Loop thru each to build videos meta
-        for video in json['schedule']:
+        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
+        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
+    else: 
+        hlsUrl = json['nonDVRSD'][0]['src']
+        rtmpUrl = json['TrueLiveSD'][0]['src']
 
-            populateVideoArray(videos, video, True)
-           
-    else:
-        if json["status"] == "Failed":
-            videos.append([0, json["msg"], "", "", "", ""])
+        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
+        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
 
-    return videos
+    return oc
 
 ###################################################################################################
 def OnDemandDatesMenu():
@@ -172,7 +179,7 @@ def OnDemandGamesMenu(gameDate):
 
     # Loop thru the array return by GetOnDemandGames
     for video in GetOnDemandGames(url):
-        (game_id, title, logo, arena, summary) = video
+        (game_id, title, logo, arena, summary, isPlaying) = video
 
         oc.add(DirectoryObject(
             key=Callback(OnDemandStreamMenu, game_id=game_id, title=title, logo=logo, arena=arena, summary=summary),
@@ -285,7 +292,20 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
                 )
             ]
         )
+
     elif streamType == "rtmp":
+
+        fullurl = url.split(" ")
+
+        if len(fullurl) > 1:
+            url = fullurl[0]
+            swfurl = fullurl[1]
+        else:
+            url = ""
+            swfurl = ""
+
+        url = url.replace("rtmp:////", "rtmp://")
+
         vco = VideoClipObject(
             key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
                          include_container=True, streamType="rtmp"),
@@ -297,12 +317,8 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
             items=[
                 MediaObject(
                     parts=[
-                        PartObject(key=Callback(PlayVideo, url=url))
+                        PartObject(key=RTMPVideoURL(url=url, swfurl=swfurl, live=True))
                     ],
-                    container = container,
-                    video_codec = video_codec,
-                    audio_codec = audio_codec,
-                    audio_channels = audio_channels,
                     optimized_for_streaming=True
                 )
             ]
@@ -439,7 +455,8 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     homeTeam = ''
     feedType = ''
     ligature = ''
-    isPlaying = ''
+    playingMarker = ''
+    isPlaying = True
     summary = ''
 
     # Live stream specific 
@@ -447,15 +464,9 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     if is_live:
         # If the game isn't on yet, set to gameoff vid
         if videoObj['isPlaying'] == 0:
-            srcUrl = URL_GAMEOFF
+             isPlaying = False
 
-        # Set vid quality chosen in prefs
-        elif videoObj['isHd'] == '1' and quality == 'High':
-            srcUrl = videoObj['hdUrl']
-        else:
-            srcUrl = videoObj['sdUrl']
-
-        if videoObj['isPlaying'] == 1: isPlaying = ">"
+        if videoObj['isPlaying'] == 1: playingMarker = ">"
 
         # Populate summary with Start Time or current period (preferred)
         if videoObj['startTime']: summary = "Start Time: " + videoObj['startTime']
@@ -482,9 +493,6 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     if videoObj['feedType']: feedType = ' - ' + videoObj['feedType']
 
     # Built the title
-    title = isPlaying + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
+    title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
-    if is_live:
-        videoArr.append([game_id, title, srcUrl, logo, arena, summary])
-    else:
-        videoArr.append([game_id, title, logo, arena, summary])
+    videoArr.append([game_id, title, logo, arena, summary, isPlaying])
