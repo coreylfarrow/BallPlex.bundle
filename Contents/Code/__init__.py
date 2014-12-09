@@ -75,7 +75,6 @@ def MainMenu():
 def LiveGamesMenu():
     title = TITLE_LIVEGAMES
     url = URL_LIVEGAMES % TOKEN
-    url = url + getServerLocation()
 
     oc = ObjectContainer(title2=title, no_cache=True)
 
@@ -126,6 +125,8 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
 
     # Get data from server
     url = URL_LIVESTREAMS % (game_id, TOKEN)
+    url = url + getServerLocation()
+
     json = JSON.ObjectFromURL(url)
 
     quality = Prefs['quality']
