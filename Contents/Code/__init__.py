@@ -7,8 +7,8 @@
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .05'
-PREFIX = '/video/ballplex'
+TITLE = 'BallPlex .06'
+PREFIX = '/video/ballplex06'
 
 ART = 'art-default.jpg'
 ICON = 'icon-default.png'
@@ -305,6 +305,7 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
             swfurl = ""
 
         url = url.replace("rtmp:////", "rtmp://")
+        swfurl = swfurl.replace("'", "").replace("swfUrl=", "")
 
         vco = VideoClipObject(
             key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
