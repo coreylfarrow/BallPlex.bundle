@@ -29,7 +29,7 @@ URL_LIVESTREAMS = 'https://api.ballstreams.com/GetLiveStream?id=%s&token=%s'
 URL_ONDEMANDGAMES = 'https://api.ballstreams.com/GetOnDemand?date=%s&token=%s'
 URL_ONDEMANDDATES = 'https://api.ballstreams.com/GetOnDemandDates?token=%s'
 URL_ONDEMANDSTREAM = 'https://api.ballstreams.com/GetOnDemandStream?id=%s&token=%s'
-URL_PREVIEW = "http://s.hscontent.com/preview/previewHD_hs.m3u8?token="
+URL_PREVIEW = "http://s.hscontent.com/preview/preview_bsHD.m3u8?token="
 URL_GAMEOFF = ''
 URL_REPO = ''
 URL_LOGOREPO = ''
