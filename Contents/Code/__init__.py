@@ -25,6 +25,7 @@ TITLE_LOGIN = 'Log In'
 
 URL_LOGIN = 'https://api.ballstreams.com/Login'
 URL_LIVEGAMES = 'https://api.ballstreams.com/GetLive?token=%s'
+URL_LIVESTREAMS = 'https://api.ballstreams.com/GetLiveStream?id=%s&token=%s'
 URL_ONDEMANDGAMES = 'https://api.ballstreams.com/GetOnDemand?date=%s&token=%s'
 URL_ONDEMANDDATES = 'https://api.ballstreams.com/GetOnDemandDates?token=%s'
 URL_ONDEMANDSTREAM = 'https://api.ballstreams.com/GetOnDemandStream?id=%s&token=%s'
@@ -79,13 +80,17 @@ def LiveGamesMenu():
 
     # Loop thru videos array returned from GetLiveGames
     for video in GetLiveGames(url):
-        (game_id, title, srcUrl, logo, arena, summary) = video
+        (game_id, title, logo, arena, summary, isPlaying) = video
 
         # If there was an error, display it
         if game_id == 0:
             return (ObjectContainer(header="Error", message=title))
         else:
-            oc.add(GetStream(game_id, title, srcUrl, logo, arena, summary))
+            #oc.add(GetStream(game_id, title, srcUrl, logo, arena, summary))
+            oc.add(DirectoryObject(
+                    key=Callback(GetLiveGameStreams, game_id=game_id, title=title, isPlaying=isPlaying, summary=summary),
+                    title=title
+                ))
 
     return oc
 
@@ -112,6 +117,32 @@ def GetLiveGames(url):
             videos.append([0, json["msg"], "", "", "", ""])
 
     return videos
+
+###################################################################################################
+def GetLiveGameStreams(game_id, title, isPlaying, summary):
+
+    oc = ObjectContainer(title2=title, no_cache=True)
+
+    # Get data from server
+    url = URL_LIVESTREAMS % (game_id, TOKEN)
+    json = JSON.ObjectFromURL(url)
+
+    quality = Prefs['quality']
+
+    if quality == 'High':
+        hlsUrl = json['nonDVRHD'][0]['src']
+        rtmpUrl = json['TrueLiveHD'][0]['src']
+
+        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
+        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
+    else: 
+        hlsUrl = json['nonDVRSD'][0]['src']
+        rtmpUrl = json['TrueLiveSD'][0]['src']
+
+        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
+        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
+
+    return oc
 
 ###################################################################################################
 def OnDemandDatesMenu():
@@ -148,7 +179,7 @@ def OnDemandGamesMenu(gameDate):
 
     # Loop thru the array return by GetOnDemandGames
     for video in GetOnDemandGames(url):
-        (game_id, title, logo, arena, summary) = video
+        (game_id, title, logo, arena, summary, isPlaying) = video
 
         oc.add(DirectoryObject(
             key=Callback(OnDemandStreamMenu, game_id=game_id, title=title, logo=logo, arena=arena, summary=summary),
@@ -183,33 +214,33 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
     if game_json['SDstreams'][0]['src']: SD = game_json['SDstreams'][0]['src']
 
     if HD and quality == 'High':
-        oc.add(GetStream(HD, gameName, HD, logo, arena, summary, False, True))
+        oc.add(GetStream(HD, gameName, HD, logo, arena, summary, False, "mp4"))
     else:
-        oc.add(GetStream(SD, gameName, SD, logo, arena, summary, False, True))
+        oc.add(GetStream(SD, gameName, SD, logo, arena, summary, False, "mp4"))
 
     ### Condensed Games
     # homeCondensed = game_json['condensed'][0]['homeSrc']
     # awayCondensed = game_json['condensed'][0]['awaySrc']
 
     # if homeCondensed == awayCondensed and homeCondensed != "" and awayCondensed != "":
-    #     oc.add(GetStream(homeCondensed, "Condensed Game", homeCondensed, logo, arena, summary, False, True))
+    #     oc.add(GetStream(homeCondensed, "Condensed Game", homeCondensed, logo, arena, summary, False, "mp4"))
     # else:
     #     if homeCondensed:
-    #         oc.add(GetStream(homeCondensed, homeTeam + " Condensed Game", homeCondensed, logo, arena, summary, False, True))
+    #         oc.add(GetStream(homeCondensed, homeTeam + " Condensed Game", homeCondensed, logo, arena, summary, False, "mp4"))
     #     if awayCondensed:
-    #         oc.add(GetStream(awayCondensed, awayTeam + " Condensed Game", awayCondensed, logo, arena, summary, False, True))
+    #         oc.add(GetStream(awayCondensed, awayTeam + " Condensed Game", awayCondensed, logo, arena, summary, False, "mp4"))
 
     ### Highlights
     homeHighlights = game_json['highlights'][0]['homeSrc']
     awayHighlights = game_json['highlights'][0]['awaySrc']
 
     if homeHighlights == awayHighlights and homeHighlights != "" and awayHighlights != "":
-        oc.add(GetStream(homeHighlights, "Highlights", homeHighlights, logo, arena, summary, False, True))
+        oc.add(GetStream(homeHighlights, "Highlights", homeHighlights, logo, arena, summary, False, "mp4"))
     else:
         if homeHighlights:
-            oc.add(GetStream(homeHighlights, homeTeam + " Highlights", homeHighlights, logo, arena, summary, False, True))
+            oc.add(GetStream(homeHighlights, homeTeam + " Highlights", homeHighlights, logo, arena, summary, False, "mp4"))
         if awayHighlights:
-            oc.add(GetStream(awayHighlights, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, True))
+            oc.add(GetStream(awayHighlights, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, "mp4"))
 
     return oc
 
@@ -231,7 +262,7 @@ def GetOnDemandGames(url):
     return videos
 
 ###################################################################################################
-def GetStream(game_id, title1, url, thumb, art, summary, include_container=False, is_mp4=False):
+def GetStream(game_id, title1, url, thumb, art, summary, include_container=False, streamType="hls"):
     Log("GetStream Game: " + str([game_id, title1, url, thumb, art, summary]))
 
     container = Container.MP4
@@ -239,10 +270,10 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
     audio_codec = AudioCodec.AAC
     audio_channels = 2
 
-    if is_mp4:
+    if streamType == "mp4":
         vco = VideoClipObject(
             key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
-                         include_container=True, is_mp4=True),
+                         include_container=True, streamType="mp4"),
             rating_key=game_id,
             title=title1,
             art=URL_ARENAREPO + art,
@@ -261,10 +292,41 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
                 )
             ]
         )
-    else:
+
+    elif streamType == "rtmp":
+
+        fullurl = url.split(" ")
+
+        if len(fullurl) > 1:
+            url = fullurl[0]
+            swfurl = fullurl[1]
+        else:
+            url = ""
+            swfurl = ""
+
+        url = url.replace("rtmp:////", "rtmp://")
+
         vco = VideoClipObject(
             key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
-                         include_container=True, is_mp4=False),
+                         include_container=True, streamType="rtmp"),
+            rating_key=game_id,
+            title=title1,
+            art=URL_ARENAREPO + art,
+            thumb=URL_LOGOREPO + thumb,
+            summary=summary,
+            items=[
+                MediaObject(
+                    parts=[
+                        PartObject(key=RTMPVideoURL(url=url, swfurl=swfurl, live=True))
+                    ],
+                    optimized_for_streaming=True
+                )
+            ]
+        )
+    elif streamType == "hls":
+        vco = VideoClipObject(
+            key=Callback(GetStream, game_id=game_id, title1=title1, url=url, thumb=thumb, art=art, summary=summary,
+                         include_container=True, streamType="hls"),
             rating_key=game_id,
             title=title1,
             art=URL_ARENAREPO + art,
@@ -393,7 +455,8 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     homeTeam = ''
     feedType = ''
     ligature = ''
-    isPlaying = ''
+    playingMarker = ''
+    isPlaying = True
     summary = ''
 
     # Live stream specific 
@@ -401,15 +464,9 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     if is_live:
         # If the game isn't on yet, set to gameoff vid
         if videoObj['isPlaying'] == 0:
-            srcUrl = URL_GAMEOFF
+             isPlaying = False
 
-        # Set vid quality chosen in prefs
-        elif videoObj['isHd'] == '1' and quality == 'High':
-            srcUrl = videoObj['hdUrl']
-        else:
-            srcUrl = videoObj['sdUrl']
-
-        if videoObj['isPlaying'] == 1: isPlaying = ">"
+        if videoObj['isPlaying'] == 1: playingMarker = ">"
 
         # Populate summary with Start Time or current period (preferred)
         if videoObj['startTime']: summary = "Start Time: " + videoObj['startTime']
@@ -436,9 +493,6 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     if videoObj['feedType']: feedType = ' - ' + videoObj['feedType']
 
     # Built the title
-    title = isPlaying + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
+    title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
-    if is_live:
-        videoArr.append([game_id, title, srcUrl, logo, arena, summary])
-    else:
-        videoArr.append([game_id, title, logo, arena, summary])
+    videoArr.append([game_id, title, logo, arena, summary, isPlaying])
