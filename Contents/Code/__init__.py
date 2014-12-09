@@ -7,8 +7,8 @@
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .06'
-PREFIX = '/video/ballplex06'
+TITLE = 'BallPlex .07'
+PREFIX = '/video/ballplex07'
 
 ART = 'art-default.jpg'
 ICON = 'icon-default.png'
@@ -29,6 +29,7 @@ URL_LIVESTREAMS = 'https://api.ballstreams.com/GetLiveStream?id=%s&token=%s'
 URL_ONDEMANDGAMES = 'https://api.ballstreams.com/GetOnDemand?date=%s&token=%s'
 URL_ONDEMANDDATES = 'https://api.ballstreams.com/GetOnDemandDates?token=%s'
 URL_ONDEMANDSTREAM = 'https://api.ballstreams.com/GetOnDemandStream?id=%s&token=%s'
+URL_PREVIEW = "http://s.hscontent.com/preview/preview_bsHD.m3u8?token="
 URL_GAMEOFF = ''
 URL_REPO = ''
 URL_LOGOREPO = ''
@@ -67,7 +68,11 @@ def MainMenu():
             title=TITLE_PREFERENCES)
         )
     else:
-        return (ObjectContainer(header="Error", message="Invalid Ballstreams username and password."))
+        oc.add(PrefsObject(
+            title=TITLE_LOGIN
+        ))
+
+        oc.add(GetStream(URL_PREVIEW, "Preview", URL_PREVIEW, R(ICON), R(ICON), "Preview feed", False, "hls"))
 
     return oc
 
@@ -125,6 +130,8 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
 
     # Get data from server
     url = URL_LIVESTREAMS % (game_id, TOKEN)
+    url = url + getServerLocation()
+
     json = JSON.ObjectFromURL(url)
 
     quality = Prefs['quality']
@@ -193,7 +200,8 @@ def OnDemandGamesMenu(gameDate):
 
 ###################################################################################################
 def OnDemandStreamMenu(game_id, title, logo, arena, summary):
-    url = URL_ONDEMANDSTREAM % (game_id, TOKEN)
+    serverLocation = getServerLocation()
+    url = URL_ONDEMANDSTREAM % (game_id, TOKEN + serverLocation)
     game_json = JSON.ObjectFromURL(url)
 
     # Get Prefs
@@ -476,6 +484,8 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
     # On demand and Live stream
 
+    summary = summary + " - Server: " + getServerLocation(False)
+
     # Set up home and away teams
     if videoObj['awayTeam']: awayTeam = videoObj['awayTeam']
     if videoObj['homeTeam']: homeTeam = videoObj['homeTeam']
@@ -497,3 +507,15 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
+
+###################################################################################################
+
+def getServerLocation(prependQueryParam = True):
+    serverLocation = Prefs["serverlocation"]
+
+    if prependQueryParam == False: return serverLocation
+
+    if (serverLocation == "Automatic"):
+        return ""
+    else:
+        return "&location=" + String.Quote(serverLocation, True)
