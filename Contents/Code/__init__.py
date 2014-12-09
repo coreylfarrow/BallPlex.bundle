@@ -7,8 +7,8 @@
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .05'
-PREFIX = '/video/ballplex'
+TITLE = 'BallPlex .06'
+PREFIX = '/video/ballplex06'
 
 ART = 'art-default.jpg'
 ICON = 'icon-default.png'
