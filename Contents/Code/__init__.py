@@ -478,7 +478,7 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
     # On demand and Live stream
 
-    summary = summary + " - Server: " + getServerLocation()
+    summary = summary + " - Server: " + getServerLocation(False)
 
     # Set up home and away teams
     if videoObj['awayTeam']: awayTeam = videoObj['awayTeam']
@@ -504,8 +504,10 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
 ###################################################################################################
 
-def getServerLocation():
+def getServerLocation(prependQueryParam = True):
     serverLocation = Prefs["serverlocation"]
+
+    if prependQueryParam == False: return serverLocation
 
     if (serverLocation == "Automatic"):
         return ""
