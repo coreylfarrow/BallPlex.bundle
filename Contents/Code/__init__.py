@@ -72,7 +72,7 @@ def MainMenu():
             title=TITLE_LOGIN
         ))
 
-        oc.add(GetStream(URL_PREVIEW, "Preview", URL_PREVIEW, R(ICON), R(ICON), summary, False, "hls"))
+        oc.add(GetStream(URL_PREVIEW, "Preview", URL_PREVIEW, R(ICON), R(ICON), "Preview feed", False, "hls"))
 
     return oc
 
