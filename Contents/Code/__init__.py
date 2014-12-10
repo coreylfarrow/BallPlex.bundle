@@ -10,7 +10,7 @@ KEY = 'a534012a8ee25958f374263ece97eb27'
 TITLE = 'BallPlex .08'
 PREFIX = '/video/ballplex08'
 
-ART = 'art-default.jpg'
+ART = 'wethenorth.jpg'
 ICON = 'icon-default.png'
 LIVE_ICON = ''
 ONDEMAND_ICON = ''
