@@ -14,7 +14,7 @@ ART = 'art-default.jpg'
 ICON = 'icon-default.png'
 LIVE_ICON = ''
 ONDEMAND_ICON = ''
-TOKEN = ''
+TOKEN = None
 
 TEAM_NAMES = 'teams.json'
 
@@ -277,7 +277,7 @@ def GetOnDemandGames(url):
     return videos
 
 ###################################################################################################
-@route(PREFIX + '/getstream')
+@route(PREFIX + '/getstream', include_container = bool)
 def GetStream(game_id, title1, url, thumb, art, summary, include_container=False, streamType="hls"):
     Log("GetStream Game: " + str([game_id, title1, url, thumb, art, summary]))
 
@@ -310,17 +310,16 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
         )
 
     elif streamType == "rtmp":
-
         fullurl = url.split(" ")
 
         if len(fullurl) > 1:
-            url = fullurl[0]
+            rtmpurl = fullurl[0]
             swfurl = fullurl[1]
         else:
-            url = ""
+            rtmpurl = ""
             swfurl = ""
 
-        url = url.replace("rtmp:////", "rtmp://")
+        rtmpurl = rtmpurl.replace("rtmp:////", "rtmp://")
         swfurl = swfurl.replace("'", "").replace("swfUrl=", "")
 
         vco = VideoClipObject(
@@ -334,7 +333,7 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
             items=[
                 MediaObject(
                     parts=[
-                        PartObject(key=RTMPVideoURL(url=url, swfurl=swfurl, live=True))
+                        PartObject(key=RTMPVideoURL(url=rtmpurl, swfurl=swfurl, live=True))
                     ],
                     optimized_for_streaming=True
                 )
@@ -470,7 +469,7 @@ def getTeamName(teamName):
     return teamName
 
 ###################################################################################################
-@route(PREFIX + '/populatevideoarray')
+@route(PREFIX + '/populatevideoarray', is_live = bool)
 def populateVideoArray(videoArr, videoObj, is_live=False):
     game_id = videoObj['id']
     awayTeam = ''
@@ -522,7 +521,7 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
 
 ###################################################################################################
-@route(PREFIX + '/getserverlocation')
+@route(PREFIX + '/getserverlocation', prependQueryParam = bool)
 def getServerLocation(prependQueryParam = True):
     serverLocation = Prefs["serverlocation"]
 
