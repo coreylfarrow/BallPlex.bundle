@@ -515,7 +515,6 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
     # On demand and Live stream
 
-    summary = summary + " - Server: " + getServerLocation(False)
 
     # Set up home and away teams
     if videoObj['awayTeam']: awayTeam = videoObj['awayTeam']
@@ -536,6 +535,8 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
     # Built the title
     title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
+
+    summary = title + " - " + summary + " - Server: " + getServerLocation(False)
 
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
 
