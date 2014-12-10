@@ -147,8 +147,8 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
         hlsUrl = json['nonDVRHD'][0]['src']
         rtmpUrl = json['TrueLiveHD'][0]['src']
 
-        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
-        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
+        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ART), summary, False, "hls"))
+        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ART), summary, False, "rtmp"))
     else: 
         hlsUrl = json['nonDVRSD'][0]['src']
         rtmpUrl = json['TrueLiveSD'][0]['src']
