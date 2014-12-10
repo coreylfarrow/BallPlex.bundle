@@ -7,14 +7,14 @@
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .07'
-PREFIX = '/video/ballplex07'
+TITLE = 'BallPlex .08'
+PREFIX = '/video/ballplex08'
 
 ART = 'art-default.jpg'
 ICON = 'icon-default.png'
 LIVE_ICON = ''
 ONDEMAND_ICON = ''
-TOKEN = ''
+TOKEN = None
 
 TEAM_NAMES = 'teams.json'
 
@@ -77,6 +77,7 @@ def MainMenu():
     return oc
 
 ###################################################################################################
+@route(PREFIX + '/livegamesmenu')
 def LiveGamesMenu():
     title = TITLE_LIVEGAMES
     url = URL_LIVEGAMES % TOKEN
@@ -97,9 +98,14 @@ def LiveGamesMenu():
                     title=title
                 ))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
+
     return oc
 
 ###################################################################################################
+@route(PREFIX + '/getlivegames')
 def GetLiveGames(url):
     # Set up our array to return
     videos = []
@@ -124,6 +130,7 @@ def GetLiveGames(url):
     return videos
 
 ###################################################################################################
+@route(PREFIX + '/getlivegamestreams')
 def GetLiveGameStreams(game_id, title, isPlaying, summary):
 
     oc = ObjectContainer(title2=title, no_cache=True)
@@ -149,9 +156,14 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
         oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
         oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
 
+    oc.add(PrefsObject(
+            title=TITLE_PREFERENCES)
+        )
+
     return oc
 
 ###################################################################################################
+@route(PREFIX + '/ondemanddatesmenu')
 def OnDemandDatesMenu():
     oc = ObjectContainer(title2='On Demand Dates', no_cache=True)
 
@@ -175,9 +187,14 @@ def OnDemandDatesMenu():
         # Display the error if there was one
         return (ObjectContainer(header="Error", message=json["msg"]))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
+
     return oc
 
 ###################################################################################################
+@route(PREFIX + '/ondemandgamesmenu')
 def OnDemandGamesMenu(gameDate):
     title = 'On Demand Games For ' + gameDate
     url = URL_ONDEMANDGAMES % (gameDate, TOKEN)
@@ -196,9 +213,14 @@ def OnDemandGamesMenu(gameDate):
             summary=summary
         ))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
+
     return oc
 
 ###################################################################################################
+@route(PREFIX + '/ondemandstreammenu')
 def OnDemandStreamMenu(game_id, title, logo, arena, summary):
     serverLocation = getServerLocation()
     url = URL_ONDEMANDSTREAM % (game_id, TOKEN + serverLocation)
@@ -250,9 +272,13 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
         if awayHighlights:
             oc.add(GetStream(awayHighlights, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, "mp4"))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
     return oc
 
 ###################################################################################################
+@route(PREFIX + '/getondemandgames')
 def GetOnDemandGames(url):
     videos = []
 
@@ -270,6 +296,7 @@ def GetOnDemandGames(url):
     return videos
 
 ###################################################################################################
+@route(PREFIX + '/getstream', include_container = bool)
 def GetStream(game_id, title1, url, thumb, art, summary, include_container=False, streamType="hls"):
     Log("GetStream Game: " + str([game_id, title1, url, thumb, art, summary]))
 
@@ -302,17 +329,16 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
         )
 
     elif streamType == "rtmp":
-
         fullurl = url.split(" ")
 
         if len(fullurl) > 1:
-            url = fullurl[0]
+            rtmpurl = fullurl[0]
             swfurl = fullurl[1]
         else:
-            url = ""
+            rtmpurl = ""
             swfurl = ""
 
-        url = url.replace("rtmp:////", "rtmp://")
+        rtmpurl = rtmpurl.replace("rtmp:////", "rtmp://")
         swfurl = swfurl.replace("'", "").replace("swfUrl=", "")
 
         vco = VideoClipObject(
@@ -326,7 +352,7 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
             items=[
                 MediaObject(
                     parts=[
-                        PartObject(key=RTMPVideoURL(url=url, swfurl=swfurl, live=True))
+                        PartObject(key=RTMPVideoURL(url=rtmpurl, swfurl=swfurl, live=True))
                     ],
                     optimized_for_streaming=True
                 )
@@ -361,6 +387,7 @@ def PlayVideo(url):
     return IndirectResponse(VideoClipObject, key=url)
 
 ###################################################################################################
+@route(PREFIX + '/validateprefs')
 def ValidatePrefs():
     # When prefs get saved, update Token
     global TOKEN
@@ -373,6 +400,7 @@ def ValidatePrefs():
                                message="Make sure your username and password are correct.")
 
 ###################################################################################################
+@route(PREFIX + '/gettoken')
 def GetToken():
     # Get the username and pass from the prefs
     user = Prefs['username']
@@ -391,6 +419,7 @@ def GetToken():
         return None
 
 ###################################################################################################
+@route(PREFIX + '/encodurltoken')
 def encodeUrlToken(url):
     # Encode the token param so it doesn't fail on 3rd party/web devices
 
@@ -403,6 +432,7 @@ def encodeUrlToken(url):
     return encUrl
 
 ###################################################################################################
+@route(PREFIX + '/formatdate')
 def FormatDate(theDate):
     # Import date and time modules
     from datetime import date, timedelta
@@ -439,6 +469,7 @@ def FormatDate(theDate):
         return formatedDate
 
 ###################################################################################################
+@route(PREFIX + '/getteamname')
 def getTeamName(teamName):
     # Display short or long team name
 
@@ -457,7 +488,7 @@ def getTeamName(teamName):
     return teamName
 
 ###################################################################################################
-
+@route(PREFIX + '/populatevideoarray', is_live = bool)
 def populateVideoArray(videoArr, videoObj, is_live=False):
     game_id = videoObj['id']
     awayTeam = ''
@@ -509,7 +540,7 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
 
 ###################################################################################################
-
+@route(PREFIX + '/getserverlocation', prependQueryParam = bool)
 def getServerLocation(prependQueryParam = True):
     serverLocation = Prefs["serverlocation"]
 
