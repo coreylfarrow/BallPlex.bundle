@@ -521,7 +521,7 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     if videoObj['homeTeam']: homeTeam = videoObj['homeTeam']
 
     # Set up arena pic name (have to do it before 'vs' gets added)
-    arena = R(ICON)
+    arena = R(ART)
 
     # Add 'vs' if there is a home and away team
     if homeTeam: ligature = ' @ '
