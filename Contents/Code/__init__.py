@@ -98,6 +98,10 @@ def LiveGamesMenu():
                     title=title
                 ))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
+
     return oc
 
 ###################################################################################################
@@ -152,6 +156,10 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
         oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
         oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
 
+    oc.add(PrefsObject(
+            title=TITLE_PREFERENCES)
+        )
+
     return oc
 
 ###################################################################################################
@@ -179,6 +187,10 @@ def OnDemandDatesMenu():
         # Display the error if there was one
         return (ObjectContainer(header="Error", message=json["msg"]))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
+
     return oc
 
 ###################################################################################################
@@ -200,6 +212,10 @@ def OnDemandGamesMenu(gameDate):
             art=URL_ARENAREPO + arena,
             summary=summary
         ))
+
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
 
     return oc
 
@@ -256,6 +272,9 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
         if awayHighlights:
             oc.add(GetStream(awayHighlights, awayTeam + " Highlights", awayHighlights, logo, arena, summary, False, "mp4"))
 
+    oc.add(PrefsObject(
+        title=TITLE_PREFERENCES)
+    )
     return oc
 
 ###################################################################################################
