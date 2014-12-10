@@ -139,6 +139,8 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
     url = URL_LIVESTREAMS % (game_id, TOKEN)
     url = url + getServerLocation()
 
+    summary = summary + " - Server: " + getServerLocation(False)
+
     json = JSON.ObjectFromURL(url)
 
     quality = Prefs['quality']
@@ -153,8 +155,8 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
         hlsUrl = json['nonDVRSD'][0]['src']
         rtmpUrl = json['TrueLiveSD'][0]['src']
 
-        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ICON), summary, False, "hls"))
-        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ICON), summary, False, "rtmp"))
+        oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ART), summary, False, "hls"))
+        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ART), summary, False, "rtmp"))
 
     oc.add(PrefsObject(
             title=TITLE_PREFERENCES)
@@ -225,6 +227,8 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
     serverLocation = getServerLocation()
     url = URL_ONDEMANDSTREAM % (game_id, TOKEN + serverLocation)
     game_json = JSON.ObjectFromURL(url)
+
+    summary = summary + " - Server: " + getServerLocation(False)
 
     # Get Prefs
     quality = Prefs['quality']
@@ -536,7 +540,7 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     # Built the title
     title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
-    summary = title + " - " + summary + " - Server: " + getServerLocation(False)
+    summary = title + " - " + summary 
 
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
 
