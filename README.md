@@ -29,6 +29,10 @@ Most devices will allow you to enter your BallStreams username and password from
 * Live streams don't work on Plex Web Client, and possibly other devices.  This is due to the use of HLS streams. Please stream from the BallStreams website directly if you're using a browser!
 
 ## Release Log
+#### Version .07 = Dec 9, 2014
+* Server locations: You can specify which server you want to stream from via Preferences
+* Add preview video to non-authed main menu
+
 #### Version .06 - Dec 8, 2014
 * Fix issue with live streams not loading
 * Add TrueLive streams (Only tested on desktop clients)
