@@ -139,7 +139,7 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
     url = URL_LIVESTREAMS % (game_id, TOKEN)
     url = url + getServerLocation()
 
-    summary = summary + " - Server: " + getServerLocation(False)
+    #summary = summary + " - Server: " + getServerLocation(False)
 
     json = JSON.ObjectFromURL(url)
 
@@ -207,7 +207,7 @@ def OnDemandGamesMenu(gameDate):
     for video in GetOnDemandGames(url):
         (game_id, title, logo, arena, summary, isPlaying) = video
 
-        summary = summary + " - Server: " + getServerLocation(False)
+        #summary = summary + " - Server: " + getServerLocation(False)
 
         oc.add(DirectoryObject(
             key=Callback(OnDemandStreamMenu, game_id=game_id, title=title, logo=logo, arena=arena, summary=summary),
@@ -548,9 +548,9 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
     title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
     if summary:
-        summary = title + " - " + summary 
+        summary = title + " - " + summary + " - Server: " + getServerLocation(False)
     else:
-        summary = title
+        summary = title + " - Server: " + getServerLocation(False)
     
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
 
