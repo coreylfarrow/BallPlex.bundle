@@ -139,8 +139,6 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
     url = URL_LIVESTREAMS % (game_id, TOKEN)
     url = url + getServerLocation()
 
-    #summary = summary + " - Server: " + getServerLocation(False)
-
     json = JSON.ObjectFromURL(url)
 
     quality = Prefs['quality']
@@ -206,8 +204,6 @@ def OnDemandGamesMenu(gameDate):
     # Loop thru the array return by GetOnDemandGames
     for video in GetOnDemandGames(url):
         (game_id, title, logo, arena, summary, isPlaying) = video
-
-        #summary = summary + " - Server: " + getServerLocation(False)
 
         oc.add(DirectoryObject(
             key=Callback(OnDemandStreamMenu, game_id=game_id, title=title, logo=logo, arena=arena, summary=summary),
