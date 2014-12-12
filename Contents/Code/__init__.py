@@ -207,6 +207,8 @@ def OnDemandGamesMenu(gameDate):
     for video in GetOnDemandGames(url):
         (game_id, title, logo, arena, summary, isPlaying) = video
 
+        summary = summary + " - Server: " + getServerLocation(False)
+
         oc.add(DirectoryObject(
             key=Callback(OnDemandStreamMenu, game_id=game_id, title=title, logo=logo, arena=arena, summary=summary),
             title=title,
@@ -227,8 +229,6 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
     serverLocation = getServerLocation()
     url = URL_ONDEMANDSTREAM % (game_id, TOKEN + serverLocation)
     game_json = JSON.ObjectFromURL(url)
-
-    summary = summary + " - Server: " + getServerLocation(False)
 
     # Get Prefs
     quality = Prefs['quality']
@@ -386,6 +386,7 @@ def GetStream(game_id, title1, url, thumb, art, summary, include_container=False
     else:
         return vco
 
+@route(PREFIX + '/playvideo')
 @indirect
 def PlayVideo(url):
     return IndirectResponse(VideoClipObject, key=url)
@@ -535,13 +536,22 @@ def populateVideoArray(videoArr, videoObj, is_live=False):
 
     # Add playing indicator if game-on (maybe take this out)
     
-    if videoObj['feedType']: feedType = ' - ' + videoObj['feedType']
+    if videoObj['feedType']: 
+        if videoObj['feedType'] == "Away Feed":
+            feedType = " - " + getTeamName(awayTeam) + " feed"
+        elif videoObj['feedType'] == "Home Feed":
+            feedType = " - " + getTeamName(homeTeam) + " feed"
+        else:
+            feedType = " - " + videoObj['feedType']
 
     # Built the title
     title = playingMarker + getTeamName(awayTeam) + ligature + getTeamName(homeTeam) + feedType
 
-    summary = title + " - " + summary 
-
+    if summary:
+        summary = title + " - " + summary 
+    else:
+        summary = title
+    
     videoArr.append([game_id, title, logo, arena, summary, isPlaying])
 
 ###################################################################################################
