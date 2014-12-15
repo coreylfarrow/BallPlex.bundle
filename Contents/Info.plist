@@ -4,7 +4,7 @@
     <dict>
 
         <key>CFBundleIdentifier</key>
-        <string>com.plexapp.plugins.ballplex08patch</string>
+        <string>com.plexapp.plugins.ballplex08patch-samsung</string>
 
         <key>PlexClientPlatforms</key>
         <string>*</string>
@@ -15,11 +15,6 @@
         <key>PlexPluginTesterFlags</key>
         <array>
             <string>NoURLServices</string>
-        </array>
-
-        <key>PlexFrameworkFlags</key>
-        <array>
-            <string>UseRealRTMP</string>
         </array>
 
     </dict>

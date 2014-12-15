@@ -7,8 +7,8 @@
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .08-patch'
-PREFIX = '/video/ballplex08PATCH'
+TITLE = 'BallPlex .08-patch SAMSUNG'
+PREFIX = '/video/ballplex08PATCH_SAMSUNG'
 
 ART = 'wethenorth.jpg'
 ICON = 'icon-default.png'
@@ -145,16 +145,16 @@ def GetLiveGameStreams(game_id, title, isPlaying, summary):
 
     if quality == 'High':
         hlsUrl = json['nonDVRHD'][0]['src']
-        rtmpUrl = json['TrueLiveHD'][0]['src']
+        #rtmpUrl = json['TrueLiveHD'][0]['src']
 
         oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ART), summary, False, "hls"))
-        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ART), summary, False, "rtmp"))
+        #oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ART), summary, False, "rtmp"))
     else: 
         hlsUrl = json['nonDVRSD'][0]['src']
-        rtmpUrl = json['TrueLiveSD'][0]['src']
+        #rtmpUrl = json['TrueLiveSD'][0]['src']
 
         oc.add(GetStream(hlsUrl, "Regular Stream", hlsUrl, R(ICON), R(ART), summary, False, "hls"))
-        oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ART), summary, False, "rtmp"))
+        #oc.add(GetStream(rtmpUrl, "TrueLive Stream", rtmpUrl, R(ICON), R(ART), summary, False, "rtmp"))
 
     oc.add(PrefsObject(
             title=TITLE_PREFERENCES)
