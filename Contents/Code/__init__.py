@@ -7,8 +7,8 @@
 
 KEY = 'a534012a8ee25958f374263ece97eb27'
 
-TITLE = 'BallPlex .08'
-PREFIX = '/video/ballplex08'
+TITLE = 'BallPlex .08-patch'
+PREFIX = '/video/ballplex08PATCH'
 
 ART = 'wethenorth.jpg'
 ICON = 'icon-default.png'
@@ -240,8 +240,12 @@ def OnDemandStreamMenu(game_id, title, logo, arena, summary):
         gameName = "Watch " + awayTeam
 
     ### Set vid quality chosen in prefs
-    if game_json['HDstreams'][0]['src']: HD = game_json['HDstreams'][0]['src']
-    if game_json['SDstreams'][0]['src']: SD = game_json['SDstreams'][0]['src']
+    # if game_json['HDstreams'][0]['src']: HD = game_json['HDstreams'][0]['src']
+    # if game_json['SDstreams'][0]['src']: SD = game_json['SDstreams'][0]['src']
+
+    # Monkey Patch:  API is busted, returning mp4s in HLS streams
+    if game_json['HDstreams'][0]['src']: HD = game_json['streams'][2]['src']
+    if game_json['SDstreams'][0]['src']: SD = game_json['streams'][2]['src']
 
     if HD and quality == 'High':
         oc.add(GetStream(HD, gameName, HD, logo, arena, summary, False, "mp4"))
