@@ -15,6 +15,7 @@ You need to install Plex Media Server before you can use this plugin.
   * Mac: `~/Library/Application Support/Plex Media Server/Plug-ins/`
   * Windows: `C:\Users\<your user>\AppData\Local\Plex Media Server\Plug-ins`
   * Linux: `(Installation Directory)/Application Support/Plex Media Server/Plug-ins/`
+    * Note: Run the following two commands; `chown -R plex:plex BallPlex.bundle` and `chmod -R 755 BallPlex.bundle`.
 4. Restart Plex Media Server
 
 ### Configure
